@@ -1,5 +1,7 @@
 # Prompteca
 
+<img width="1257" alt="image" src="https://github.com/AsmisAlan/prompteca/assets/14351502/d53b0387-61a8-4966-bd38-a7ad3fab5201">
+
 Welcome to Prompteca! A super simple UI to store prompts locally with action links to use your prompts with your favorite AI platform.
 
 ## Features
