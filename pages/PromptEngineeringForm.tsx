@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/componen
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ChatGptLogo, ClaudeLogo, PerplexityLogo } from '@/components/logos/BrandLogos';
 
 interface Prompt {
   text: string;
@@ -94,117 +95,126 @@ const PromptEngineeringForm: React.FC = () => {
   const emojis: string[] = ['💡', '🤖', '💬', '📝', '🎨', '🧠', '🔍', '📊', '🚀', '🌟'];
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle>Prompteca</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-center space-x-2 mb-4">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" className="w-10 h-10 p-0">
-                {icon}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-full p-0">
-              <div className="grid grid-cols-5 gap-2 p-2">
-                {emojis.map((emoji) => (
-                  <Button
-                    key={emoji}
-                    variant="ghost"
-                    className="w-10 h-10 p-0"
-                    onClick={() => setIcon(emoji)}
-                  >
-                    {emoji}
-                  </Button>
-                ))}
+    <div className='gap-3 flex flex-col md:flex-row lg:flex-row'>
+      <Card className="w-full">
+        <CardContent>
+          <div className="flex items-center space-x-2 my-4">
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-10 h-10 p-0">
+                  {icon}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0">
+                <div className="grid grid-cols-5 gap-2 p-2">
+                  {emojis.map((emoji) => (
+                    <Button
+                      key={emoji}
+                      variant="ghost"
+                      className="w-10 h-10 p-0"
+                      onClick={() => setIcon(emoji)}
+                    >
+                      {emoji}
+                    </Button>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
+            <Textarea
+              placeholder="Enter your prompt here..."
+              value={prompt}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt(e.target.value.slice(0, 8000))}
+              className="flex-1"
+              rows={5}
+            />
+          </div>
+          <div className="text-sm text-gray-500 mb-4">
+            {prompt.length}/8000 characters
+          </div>
+          <Button onClick={savePrompt} className="w-full">
+            {editingIndex !== null ? 'Update Prompt' : 'Save Prompt'}
+          </Button>
+          {error && (
+            <Alert variant="destructive" className="mt-4">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+        </CardContent>
+      </Card>
+      <Card className="w-full">
+        <CardContent className="flex-col items-stretch">
+          <h3 className="text-lg font-semibold mb-2">Saved Prompts</h3>
+          {savedPrompts.length === 0 ? (
+            <p className="text-gray-500">No saved prompts yet. Create your first prompt above!</p>
+          ) : (
+            savedPrompts.map((savedPrompt, index) => (
+              <div key={index} className="flex flex-col justify-between py-2 border-b last:border-b-0">
+                <span className="mr-2">{savedPrompt.icon}</span>
+                <pre className="flex-1 overflow-auto max-h-[100px] whitespace-pre-wrap">{savedPrompt.text}</pre>
+                <br />
+                <div className='flex'>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="sm" onClick={() => openInChatGPT(savedPrompt.text)}>
+
+                          <ChatGptLogo />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Open in ChatGPT</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="sm" onClick={() => openInPerplexity(savedPrompt.text)}>
+
+                          <PerplexityLogo />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Open in Perplexity</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="sm" onClick={() => openInClaude(savedPrompt.text)}>
+                          <ClaudeLogo />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Open in Claude</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="sm" onClick={() => copyToClipboard(index, savedPrompt.text)}>
+                          {copiedIndex === index ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{copiedIndex === index ? 'Copied!' : 'Copy to clipboard'}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <span className='flex-1'></span>
+                  <Button variant="ghost" size="sm" onClick={() => editPrompt(index)}>Edit</Button>
+                  <Button variant="ghost" size="sm" onClick={() => deletePrompt(index)}>Delete</Button>
+                </div>
               </div>
-            </PopoverContent>
-          </Popover>
-          <Textarea
-            placeholder="Enter your prompt here..."
-            value={prompt}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt(e.target.value.slice(0, 8000))}
-            className="flex-1"
-            rows={4}
-          />
-        </div>
-        <div className="text-sm text-gray-500 mb-4">
-          {prompt.length}/8000 characters
-        </div>
-        <Button onClick={savePrompt} className="w-full">
-          {editingIndex !== null ? 'Update Prompt' : 'Save Prompt'}
-        </Button>
-        {error && (
-          <Alert variant="destructive" className="mt-4">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-      </CardContent>
-      <CardFooter className="flex-col items-stretch">
-        <h3 className="text-lg font-semibold mb-2">Saved Prompts</h3>
-        {savedPrompts.length === 0 ? (
-          <p className="text-gray-500">No saved prompts yet. Create your first prompt above!</p>
-        ) : (
-          savedPrompts.map((savedPrompt, index) => (
-            <div key={index} className="flex items-center justify-between py-2 border-b last:border-b-0">
-              <span className="mr-2">{savedPrompt.icon}</span>
-              <span className="flex-1 truncate">{savedPrompt.text}</span>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="sm" onClick={() => openInChatGPT(savedPrompt.text)}>
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Open in ChatGPT</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="sm" onClick={() => openInPhind(savedPrompt.text)}>
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Open in Phind</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="sm" onClick={() => openInPerplexity(savedPrompt.text)}>
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Open in Perplexity</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="sm" onClick={() => copyToClipboard(index, savedPrompt.text)}>
-                      {copiedIndex === index ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{copiedIndex === index ? 'Copied!' : 'Copy to clipboard'}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <Button variant="ghost" size="sm" onClick={() => editPrompt(index)}>Edit</Button>
-              <Button variant="ghost" size="sm" onClick={() => deletePrompt(index)}>Delete</Button>
-            </div>
-          ))
-        )}
-      </CardFooter>
-    </Card>
+            ))
+          )}
+        </CardContent>
+      </Card>
+    </div>
+
   );
 };
 
