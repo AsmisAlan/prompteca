@@ -15,7 +15,7 @@ export default function Home() {
       <div className="w-full flex items-center flex-col">
         <span className="text-center flex flex-col items-center mb-2">
           <SparklesText text="Prompteca" className="text-5xl font-bold text-center" />
-          <small>Write prompts once run everywhere</small>
+          <small>Write Once, Execute Everywhere</small>
         </span>
         <PromptEngineeringForm />
         <footer className="text-center mt-10 fixed bottom-0 left-0 right-0">
